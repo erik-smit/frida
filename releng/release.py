@@ -125,12 +125,15 @@ if __name__ == '__main__':
             return g.repos.frida.frida
 
         status, data = repo().releases.tags[tag_name].get()
+        previous_tag_name = subprocess.check_output(["git", "describe", "--abbrev=0", "--tags", "%s^" % tag_name], cwd=build_dir).strip()
+        changelog = subprocess.check_output(["bash", "releng/make-changelog.sh", previous_tag_name, tag_name ], cwd=build_dir).strip()
+
         if status != 200:
             if status == 404:
                 status, data = repo().releases.post(body={
                     'tag_name': tag_name,
                     'name': "Frida {}".format(version),
-                    'body': "See http://www.frida.re/news/ for details.",
+                    'body': changelog
                 })
             else:
                 raise RuntimeError("Unexpected error trying to get current release; status={} data={}".format(status, data))
