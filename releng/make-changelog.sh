@@ -8,6 +8,7 @@ if [ -z "$from" -o -z "$to" ]; then
 fi
 temp="$(mktemp /tmp/make-changelog.XXXXXX)"
 
+git --no-pager log --oneline ${from}..${to} | grep -v -e "Update submodule" -e "Update frida" | sed -e "s/^/frida\/frida\@/"
 for module in frida-gum frida-core frida-python frida-node frida-qml frida-clr frida-swift; do
   git --no-pager diff ${from}..${to} $module > "$temp"
   if grep -q "Subproject commit" "$temp"; then
